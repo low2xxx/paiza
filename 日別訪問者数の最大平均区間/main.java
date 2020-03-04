@@ -1,72 +1,59 @@
 import java.util.*;
 import java.util.stream.Stream;
+import java.util.Comparator.*;
 
 public class Main {
     public static void main(String[] args) {
+
         Scanner sc = new Scanner(System.in);
 
         String line1 = sc.nextLine();
-        
+
         String line2 = sc.nextLine();
-        
-        String[] day_info_str = line1.split(" ");
-        
-        int[] day_info = Stream.of(day_info_str).mapToInt(Integer::parseInt).toArray();
-        
-        String[] access_info_str = line2.split(" ");
-        
-        int[] access_info = Stream.of(access_info_str).mapToInt(Integer::parseInt).toArray();
 
-        Integer n = day_info[0];
-        
-        Integer k = day_info[1];
-        
-        ArrayList<Integer> result = new ArrayList<Integer>();
+        String[] dayInfoStr = line1.split(" ");
 
-        Integer i = 0;
-        for (Integer count : access_info) {
+        int[] dayInfo = Stream.of(dayInfoStr).mapToInt(Integer::parseInt).toArray();
 
-            //連続した日数のアクセス数合計
-            Integer count_days =  count;
-    
-            if (n - i < k) {
+        String[] accessInfoStr = line2.split(" ");
+
+        int[] accessInfo = Stream.of(accessInfoStr).mapToInt(Integer::parseInt).toArray();
+
+        int n = dayInfo[0];
+
+        int k = dayInfo[1];
+
+        List<Integer> result = new ArrayList<Integer>();
+
+        for (int i = 0; i < n - k + 1; i++) {
+
+            // 連続した日数のアクセス数合計
+            int countDays = 0;
+
+            for (int c = 0; c < k; c++) {
+                countDays += accessInfo[i + c];
+            }
+
+            result.add(countDays);
+
+        }
+
+        // 最大値 nullの場合は例外が投げられる
+        final int max = result.stream().max(Comparator.naturalOrder()).get();
+
+        long candidate = result.stream().filter(i -> i == max).count();
+
+        Optional<Integer> maxFirstIndex = Optional.empty();
+        for (int i = 0; i < result.size(); i++) {
+            if (max == result.get(i)) {
+                maxFirstIndex = Optional.of(i);
                 break;
             }
-            
-            for (Integer c = 1; c < k; c++) {
-                count_days += access_info[i + c];
-            }
-            
-            result.add(count_days);
-            
-            i++;
-        }
-        //最大値のインデックス
-        Integer max_index = result.size() - 1;
-        
-        //最大値
-        Integer max = result.get(max_index);
-
-        for (i = max_index; 0 <= i; i--) {
-
-            if (max <= result.get(i)) {
-                max = result.get(i);
-                max_index = i;
-            }
-        }
-        
-        //候補数
-        Integer candidate = 0;
-        
-        for (Integer count : result) {
-            if (count == max) {
-                candidate++;
-            }
         }
 
-        Integer start_day = max_index + 1;
-        
-        System.out.printf("%d %d", candidate, start_day);
+        int startDay = maxFirstIndex.get() + 1;
+
+        System.out.printf("%d %d", candidate, startDay);
 
     }
 }
