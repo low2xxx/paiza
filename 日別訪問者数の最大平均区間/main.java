@@ -30,28 +30,28 @@ public class Main {
             // 連続した日数のアクセス数合計
             int countDays = 0;
 
-            for (int c = 0; c < k; c++) {
-                countDays += accessInfo[i + c];
+            // １回目とそれ以降でロジックの切り分け
+            if (result == null || result.size() == 0) {
+                // CP期間の合計アクセス数
+                for (int c = 0; c < k; c++) {
+                    countDays += accessInfo[i + c];
+                }
+            } else {
+                // (前回計算結果) - (基準日の前日アクセス数) + (CP期間だった場合の最終日アクセス数)
+                countDays = result.get(i - 1) - accessInfo[i - 1] + accessInfo[i + k - 1];
             }
 
             result.add(countDays);
-
         }
 
-        // 最大値 nullの場合は例外が投げられる
-        final int max = result.stream().max(Comparator.naturalOrder()).get();
+        // 最大値の取得
+        final int max = Collections.max(result);
 
+        // CP開催日の候補数
         long candidate = result.stream().filter(i -> i == max).count();
 
-        Optional<Integer> maxFirstIndex = Optional.empty();
-        for (int i = 0; i < result.size(); i++) {
-            if (max == result.get(i)) {
-                maxFirstIndex = Optional.of(i);
-                break;
-            }
-        }
-
-        int startDay = maxFirstIndex.get() + 1;
+        // キャンペーン開始日
+        int startDay = result.indexOf(max) + 1;
 
         System.out.printf("%d %d", candidate, startDay);
 
